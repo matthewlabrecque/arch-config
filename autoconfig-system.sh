@@ -4,7 +4,7 @@ set -euo pipefail
 GIT_USER=""
 GIT_EMAIL=""
 
-pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
+pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "lazygit" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
   "npm" "obs-studio" "obsidian" "podman" "proton-vpn-gtk-app" "qbittorrent" "rclone" "rust" "rust-bindgen" "rust-src" "rustup" "snapper" "telegram-desktop" "ufw" "vim" "vlc" "zsh" "ttf-firacode-nerd")
 
 flatpak_packages=("neo.ankiweb.Anki")
