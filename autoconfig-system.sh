@@ -1,10 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-GIT_USER=""
-GIT_EMAIL=""
-
-pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "distrobox" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gnome-keyring" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "lazygit" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
+pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "btop" "clang" "distrobox" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gnome-keyring" "gradle" "jdk-openjdk" "jre-openjdk" "lazygit" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
   "npm" "obs-studio" "obsidian" "podman" "proton-vpn-gtk-app" "qbittorrent" "rclone" "rust" "rust-bindgen" "rust-src" "rustup" "snapper" "telegram-desktop" "ufw" "vim" "vlc" "zsh" "ttf-firacode-nerd")
 
 aur_packages=("brave-bin" "localsend" "visual-studio-code-bin")
@@ -21,7 +18,7 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 mkdir /tmp/yay-build
 git clone https://aur.archlinux.org/yay.git /tmp/yay-build
 cd /tmp/yay-build || exit
-sudo makepkg -si --noconfirm
+makepkg -si
 cd /home/"$USER" || exit
 
 # Update all repos
@@ -62,23 +59,7 @@ sudo ufw allow ssh
 sudo ufw enable
 
 #Configure AppArmor
-if ! grep -q "apparmor=1 security=apparmor" /etc/default/grub; then
-  sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 apparmor=1 security=apparmor"/' /etc/default/grub
-fi
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-sudo mkdir -p /var/cache/apparmor
-if ! pacman -Q apparmor-profiles &>/dev/null; then
-  sudo pacman -S --noconfirm apparmor-profiles 2>/dev/null || echo "Note: apparmor-profiles package not available or installation skipped"
-fi
-if [ -d /etc/apparmor.d ]; then
-  sudo apparmor_parser -r /etc/apparmor.d/* 2>/dev/null || true
-fi
-if ! pacman -Q audit &>/dev/null; then
-  sudo pacman -S --noconfirm audit
-  sudo systemctl enable auditd.service
-else
-  sudo systemctl enable auditd.service
-fi
+# TODO: Add in default AppArmor configuration
 
 # Configure the terminal environment
 if [ "$SHELL" != "$(which zsh)" ]; then
@@ -91,23 +72,57 @@ if ! command -v starship &>/dev/null; then
 fi
 
 # Create my three main special directors
-mkdir /home/"$USER"/Univesrsity
-mkdir /home/"$USER"/ObsidianVault
-mkdir /home/"$USER"/Repos
+mkdir -p /home/"$USER"/Univesrsity
+mkdir -p /home/"$USER"/ObsidianVault
+mkdir -p /home/"$USER"/Repos
+
+# Append to .zshrc
+sudo tee -a """
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
+
+
+# Enable starship
+eval '$(starship init zsh)'
+
+# Custom aliases
+alias ll='ls -lF'
+alias vim='nvim'
+alias lgit='lazygit'
+alias htop='btop'
+
+# opencode
+export PATH=/home/'$USER'/.opencode/bin:$PATH""" /home/"$USER"/.zshrc
 
 # Pull from git dotfile repo
-mkdir /tmp/dotfiles
+mkdir -p /tmp/dotfiles
 git clone https://github.com/matthewlabrecque/dotfiles.git /tmp/dotfiles
-cd ~
-rm .zshrc
-rm .config/ghostty/config
-rm .config/fastfetch/config.jsonc
+cd /home/"$USER"/
+
+# If the ghostty config doesn't exist, creat the directory
+# Otherwise, remove the config
+if [ ! -f ~/.config/ghostty/config ]; then
+  mkdir -p ~/.config/ghostty/config
+elif [ -f ~/.config/ghostty/config ]; then
+  rm .config/ghostty/config
+fi
+
+# If the fastfech config doesn't exist, create the directory
+# Otherwise, remove the config
+if [ ! -f ~/.config/fastfetch/config.jsonc ]; then
+  mkdir -p ~/.config/fastfetch
+elif [ -f ~/.config/fastfetch/config.jsonc ]; then
+  rm .config/fastfetch/config.jsonc
+fi
+
 cd /tmp/dotfiles
 cp fastfetch_config.jsonc /home/"$USER"/.config/fastfetch/config.jsonc
 cp ghostty_config /home/"$USER"/.config/ghostty/config
-cp zshrc /home/"$USER"/.zshrc
-cp laptop-scripts/* /home/"$USER"/Scripts/
-cd ~
+cd /home/"$USER"/
 
 # Install Lazyvim
 if [ -d ~/.config/nvim ]; then
@@ -115,10 +130,6 @@ if [ -d ~/.config/nvim ]; then
 fi
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
-
-# Set my Git credentials
-git config --global user.name "$GIT_USER"
-git config --global user.email "$GIT_EMAIL"
 
 # Reboot the system
 sudo reboot
