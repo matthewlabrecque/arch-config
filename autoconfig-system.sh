@@ -4,12 +4,12 @@ set -euo pipefail
 GIT_USER=""
 GIT_EMAIL=""
 
-pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "lazygit" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
+pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "distrobox" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gnome-keyring" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "lazygit" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
   "npm" "obs-studio" "obsidian" "podman" "proton-vpn-gtk-app" "qbittorrent" "rclone" "rust" "rust-bindgen" "rust-src" "rustup" "snapper" "telegram-desktop" "ufw" "vim" "vlc" "zsh" "ttf-firacode-nerd")
 
-flatpak_packages=("neo.ankiweb.Anki")
+aur_packages=("brave-bin" "localsend" "visual-studio-code-bin")
 
-aur_packages=("brave-bin" "localsend")
+flatpak_packages=("neo.ankiweb.Anki")
 
 ### INSTALL ###
 
@@ -26,7 +26,7 @@ cd /home/"$USER" || exit
 
 # Update all repos
 sudo pacman -Syu --noconfirm
-flatpak update -y
+flatpak update -y --noninteractive
 
 # Install pacman packages
 for i in "${pacman_packages[@]}"; do
@@ -40,7 +40,7 @@ done
 
 # Install Flatpaks
 for i in "${flatpak_packages[@]}"; do
-  flatpak install flathub "${i}" -y
+  flatpak install flathub "${i}" --noninteractive
 done
 
 # Install OpenCode
@@ -107,6 +107,7 @@ cp fastfetch_config.jsonc /home/"$USER"/.config/fastfetch/config.jsonc
 cp ghostty_config /home/"$USER"/.config/ghostty/config
 cp zshrc /home/"$USER"/.zshrc
 cp laptop-scripts/* /home/"$USER"/Scripts/
+cd ~
 
 # Install Lazyvim
 if [ -d ~/.config/nvim ]; then
