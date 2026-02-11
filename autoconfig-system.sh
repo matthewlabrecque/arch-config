@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "element-desktop" "fastfetch" "gcc" "ghostty" "git" "go" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
+GIT_USER=""
+GIT_EMAIL=""
+
+pacman_packages=("apparmor" "base-devel" "btrfs-assistant" "clang" "element-desktop" "fastfetch" "gcc" "ghostty" "go" "gradle" "htop" "jdk-openjdk" "jre-openjdk" "libreoffice-still" "linux-lts" "maven" "neovim" "nodejs"
   "npm" "obs-studio" "obsidian" "proton-vpn-gtk-app" "qbittorrent" "rclone" "rust" "rust-bindgen" "rust-src" "rustup" "snapper" "telegram-desktop" "ufw" "vim" "vlc" "zsh" "ttf-firacode-nerd")
 
 flatpak_packages=("neo.ankiweb.Anki")
@@ -90,8 +93,7 @@ fi
 # Create my three main special directors
 mkdir /home/"$USER"/Univesrsity
 mkdir /home/"$USER"/ObsidianVault
-mkdir /home/"$USER"/Projects
-mkdir /home/"$USER"/Scripts
+mkdir /home/"$USER"/Repos
 
 # Pull from git dotfile repo
 mkdir /tmp/dotfiles
@@ -114,8 +116,8 @@ git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
 
 # Set my Git credentials
-git config --global user.name "Matthew Labrecque"
-git config --global user.email "matthew.labrecque@proton.me"Pull my scripts repo to my scripts folder
+git config --global user.name "$GIT_USER"
+git config --global user.email "$GIT_EMAIL"
 
 # Reboot the system
 sudo reboot
