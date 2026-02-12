@@ -8,7 +8,7 @@ aur_packages=("brave-bin" "localsend" "visual-studio-code-bin")
 
 flatpak_packages=("neo.ankiweb.Anki")
 
-### INSTALL ###
+### INSTALLATION ###
 
 # Install Flatpak and Add Flathub as the repository
 sudo pacman -S --noconfirm flatpak
@@ -58,8 +58,18 @@ sudo ufw default allow outgoing
 sudo ufw allow ssh
 sudo ufw enable
 
-#Configure AppArmor
-# TODO: Add in default AppArmor configuration
+# Enable AppArmor service and load default profiles
+sudo systemctl enable --now apparmor
+sudo aa-enforce /etc/apparmor.d/* 2>/dev/null || true
+if ! grep -q "apparmor=1" /etc/default/grub; then
+  sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="apparmor=1 security=apparmor /' /etc/default/grub
+fi
+
+# Set Linux kernel to LTS
+if ! grep -q "GRUB_DEFAULT=.*linux-lts" /etc/default/grub; then
+  sudo sed -i 's/^GRUB_DEFAULT=.*/GRUB_DEFAULT="Advanced options for Arch Linux>Arch Linux, with Linux linux-lts"/' /etc/default/grub
+fi
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Configure the terminal environment
 if [ "$SHELL" != "$(which zsh)" ]; then
@@ -130,6 +140,8 @@ if [ -d ~/.config/nvim ]; then
 fi
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
+
+### CLEANUP ###
 
 # Reboot the system
 sudo reboot
